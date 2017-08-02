@@ -1,0 +1,69 @@
+body {
+    width: 100%;
+}
+
+
+#videoContainer {
+    position: absolute;
+
+
+    overflow: hidden;
+}
+
+
+
+
+.video-js {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: none;
+}
+
+.vjs-poster {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: none;
+}
+
+#videos {
+
+    position: relative;
+    width: 1px;
+    table-layout: fixed;
+
+}
+
+#videos td {
+
+
+    background-size: cover;
+    padding: 0;
+    margin: 0;
+}
+
+#videos tr {
+    padding: 0;
+    margin: 0;
+}
+
+#info {
+    padding-right: 50;
+}
+
+#videoInfo {
+    border-collapse: collapse;
+}
+
+#videoInfo td {
+    padding: 2em;
+    text-align: right;
+}
+
+
+/*#videoinfo td{
+    max-width: 100;
+}*/
