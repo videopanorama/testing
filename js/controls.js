@@ -11,7 +11,7 @@
         var holding;
         //keys
         var keys = {};
-        var mousePos = {};
+        var mousePos = {"x":0, "y": 0};
 
         $("body").mousemove(function(e) {
             mousePos.x = e.pageX;

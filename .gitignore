@@ -1,1 +1,8 @@
-seafront
+!seafront/
+seafront/base.mp4
+
+seafront/original/*
+!seafront/seafront_full
+
+seafront/seafront_full/*
+!seafront/seafront_full/pics

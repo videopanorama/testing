@@ -1,12 +1,18 @@
 //static
 
 var width = 1835;
-var height = 640; 
+var height = 640;
 var assumedTileSize = 1024; //tile size used when calculating width and height
 
 var levels = 6;
 var xmaxLevels = [2, 4, 8, 15, 29, 58]; //maximum x of available tiles at each level
 var ymaxLevels = [1, 2, 3, 5, 10, 20]; //maximum y of available tiles at each level
+
+//initialize
+
+var startx = 0;
+var starty = 0;
+var startzoom = 5;
 
 //src variables
 
@@ -16,9 +22,9 @@ var zoomLevel; //level of tiles being used
 
 //continuous variables
 
-var xpos; //x of top left tile of visible 2x2, from 0 -> width
-var ypos; //y of top left tile of visible 2x2, from 0 -> height
-var zoom; //zoom level of current set of tiles, [1, 2^levels)
+var xpos = startx; //x of top left tile of visible 2x2, from 0 -> width
+var ypos = starty; //y of top left tile of visible 2x2, from 0 -> height
+var zoom = startzoom; //zoom level of current set of tiles, [1, 2^levels)
 
 //buffer status
 
@@ -31,8 +37,10 @@ var players = CreateTileArray();
 
 //parameters
 
-var buffer = true;
-var useVideos = !(urlParams.video == "false");
+var useBuffer = true;
+//var useVideos = !(urlParams.video == "false");
+var useVideos = false;
+var useSync = !(urlParams.sync == "false");
 
 //time 
 
@@ -45,7 +53,6 @@ var videos;
 
 
 /////////////////////
-
 
 //initializes every video container, for tileUpdate
 
@@ -65,14 +72,14 @@ function initialize() {
 
 function imageSrc(x, y, level) {
     if (!(validTile(x, y, level))) { return "seafront/black.jpg"; }
-    return 'seafront/seafront_full/full/pics/mipmap_' + level + '_' + y + '_' + x + '.jpg';
+    return 'seafront/seafront_full/pics/mipmap_' + level + '_' + y + '_' + x + '.jpg';
 }
 
 //gets the src of specific video tile
 
 function videoSrc(x, y, level) {
-    if (!(validTile(x, y, level))) { console.log("requested invalid tile " + level + "_" + y + "_" + x); return "seafront/base.mp4"; }
-    return 'seafront/seafront_full/full/mipmap_' + level + '_' + y + '_' + x + '.mp4';
+    if (!(validTile(x, y, level))) { console.log("requested invalid tile " + level + "_" + y + "_" + x); return "../seafront/base.mp4"; }
+    return '../seafront/seafront_full/mipmap_' + level + '_' + y + '_' + x + '.mp4';
 }
 
 function getId(x, y) {
@@ -240,7 +247,7 @@ function setPosition(newxpos, newypos, newzoom) {
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
-    if (newxpos < 0 || newypos < 0 || newxpos + (defaultTileSize) * (xtilesWindow-1)/newzoom > width*defaultTileSize/assumedTileSize || newypos + defaultTileSize * (ytilesWindow-1)/newzoom > height*defaultTileSize/assumedTileSize || newzoomLevel >= levels || newzoomLevel<2) {
+    if (newxpos < 0 || newypos < 0 || newxpos + (defaultTileSize) * (xtilesWindow - 1) / newzoom > width * defaultTileSize / assumedTileSize || newypos + defaultTileSize * (ytilesWindow - 1) / newzoom > height * defaultTileSize / assumedTileSize || newzoomLevel >= levels || newzoomLevel < 2) {
         return false;
     }
 
@@ -301,13 +308,13 @@ function changeTilesSrc() {
         tileUpdate(updateVideo);
     }
 
-    if (buffer) {
+    if (useBuffer) {
         bufferAllPosters();
     }
 
 }
 
-var loaded = function () {
+var loaded = function() {
 
 
     var id = this.id();
@@ -318,7 +325,7 @@ var loaded = function () {
     }
     players[xtile][ytile].showing = true;
 
-   // console.error("showing" + id);
+    // console.error("showing" + id);
     $("#" + id).css("display", "block");
     // $("#" + id + " *").css("visibility", "visible");
 
@@ -336,18 +343,20 @@ var loaded = function () {
 function changePosition(xchange, ychange, zoomchange, zoomcenterX, zoomcenterY) {
     var zoomStep = 0.01;
     var posStep = 10;
-    var zdelta = 0.01*zoomchange; 
+    var zdelta = 0.01 * zoomchange;
     var zoomRatio = zdelta / zoom;
-    var xdelta = 10*xchange + zoomcenterX * zoomRatio / (zoomRatio + 1);
-    var ydelta = 10*ychange + zoomcenterY * zoomRatio / (zoomRatio + 1);
-    setPosition(xpos + xdelta, ypos + ydelta, zoom*(1+ zdelta));
+    var xdelta = 10 * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1);
+    var ydelta = 10 * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1);
+    console.log((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
+    setPosition((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
+
 
 }
 
 $(document).on("startMaster", function() {
     tileUpdate(initialize);
     videos = $(".video-js");
-    setPosition(0, 0, 4);
+    setPosition(xpos, ypos, zoom);
     $(document).trigger("controls");
-    $(document).trigger("sync");
+    if (useSync) {   $(document).trigger("sync");}
 });

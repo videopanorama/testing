@@ -2,8 +2,8 @@
 
 
 
-var xtilesWindow = 3;
-var ytilesWindow = 2;
+var xtilesWindow = parseInt(urlParams.xtiles || 4);
+var ytilesWindow = parseInt(urlParams.ytiles || 3);
 
 var tileSize;
 
