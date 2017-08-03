@@ -17,15 +17,21 @@ var videos;
 $(document).ready(function() {
     defaultTileSize = Math.round($(window).width() / (xtilesWindow-1));
     tileSize = defaultTileSize;
-    tileUpdate(tiles);
+    tiles();
+    $("#videoContainer").css("height", tileSize * (ytilesWindow - 1)).css("width", tileSize * (xtilesWindow - 1));
+    $("#videos td").css("width", tileSize).css("height", tileSize);
+    $(".video-js").on('contextmenu', function(e) {
+    e.preventDefault();
+
+});
     $(document).trigger("startMaster");
 });
 
 function tiles() {
     var content = "";
-    for (ytile = 0; ytile < ytilesWindow; ytile++) {
+    for (var ytile = 0; ytile < ytilesWindow; ytile++) {
         content += "<tr>";
-        for (xtile = 0; xtile < xtilesWindow; xtile++) {
+        for (var xtile = 0; xtile < xtilesWindow; xtile++) {
             id = ytile + "_" + xtile;
             content += '<td> <video id="' + id + '" class="video-js"></video></td>';
         }
@@ -34,12 +40,7 @@ function tiles() {
     $("#videos").append(content);
 
     //$("#videoContainer").css("left", -tileSize/2).css("top", -tileSize/2);
-    $("#videoContainer").css("height", tileSize * (ytilesWindow - 1)).css("width", tileSize * (xtilesWindow - 1));
-    $("#videos td").css("width", tileSize).css("height", tileSize);
-    $(".video-js").on('contextmenu', function(e) {
-    e.preventDefault();
 
-});
 }
 
 
@@ -50,9 +51,9 @@ window.onload = function start() {
 
 function videoInfo() {
     var content;
-    for (ytile = 0; ytile < ytilesWindow; ytile++) {
+    for (var ytile = 0; ytile < ytilesWindow; ytile++) {
         content += "<tr>";
-        for (xtile = 0; xtile < xtilesWindow; xtile++) {
+        for (var xtile = 0; xtile < xtilesWindow; xtile++) {
             id = ytile + "_" + xtile;
             content += '<td id="' + id + "_info" + '"></td>';
         }
@@ -62,8 +63,8 @@ function videoInfo() {
     $("#videoInfo").append(content);
     window.setInterval(function() {
         //$(document).trigger('sjs:play');
-        for (ytile = 0; ytile < ytilesWindow; ytile++) {
-            for (xtile = 0; xtile < xtilesWindow; xtile++) {
+        for (var ytile = 0; ytile < ytilesWindow; ytile++) {
+            for (var xtile = 0; xtile < xtilesWindow; xtile++) {
                 var id = ytile + "_" + xtile;
                 var v = videojs(id);
                 var bufferedPercent = Math.round(v.bufferedPercent() * 100) + "%";

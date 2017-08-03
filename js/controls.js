@@ -11,7 +11,7 @@
         var holding;
         //keys
         var keys = {};
-        var mousePos = {"x":0, "y": 0};
+        var mousePos = { "x": 0, "y": 0 };
 
         $("body").mousemove(function(e) {
             mousePos.x = e.pageX;
@@ -52,6 +52,12 @@
 
 
             changePosition(xchange, ychange, zchange, mousePos.x, mousePos.y);
+        });
+
+        $("#videoContainer").on("wheel", function(e) {
+            e.preventDefault();
+            zchange = -e.originalEvent.deltaY/100;
+            changePosition(0, 0, zchange, e.pageX, e.pageY);
         });
 
         $(document).keyup(function(e) {

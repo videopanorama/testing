@@ -197,10 +197,10 @@ function bufferAllVideos() {
 //for loop that runs through every tile in the window and supplies videojs id
 
 function tileUpdate(operation) {
-    for (ytile = 0; ytile < ytilesWindow; ytile++) {
-        for (xtile = 0; xtile < xtilesWindow; xtile++) {
+    for (var ytile = 0; ytile < ytilesWindow; ytile++) {
+        for (var xtile = 0; xtile < xtilesWindow; xtile++) {
             id = ytile + "_" + xtile;
-            operation();
+            operation(xtile, ytile, id);
         }
     }
 }
@@ -209,7 +209,7 @@ function tileUpdate(operation) {
 
 //changes video and poster src depending on xTile and yTile, for tileUpdate
 
-function updatePoster() {
+function updatePoster(xtile, ytile, id) {
     var video = videojs(id);
 
     var src = imageSrc(xtile + xTile, ytile + yTile, zoomLevel);
@@ -218,7 +218,7 @@ function updatePoster() {
 }
 
 
-function updateVideo() {
+function updateVideo(xtile, ytile, id) {
     var video = videojs(id);
     var src = videoSrc(xtile + xTile, ytile + yTile, zoomLevel);
     video.src(src);
@@ -254,7 +254,7 @@ function setPosition(newxpos, newypos, newzoom) {
     //zoom css 
 
     tileSize = (defaultTileSize * newzoom) / newzoomrounded;
-    tileUpdate(function() {
+    tileUpdate(function(xtile, ytile, id) {
         var video = videojs(id);
         video.dimensions(tileSize, tileSize);
 
@@ -343,11 +343,10 @@ var loaded = function() {
 function changePosition(xchange, ychange, zoomchange, zoomcenterX, zoomcenterY) {
     var zoomStep = 0.01;
     var posStep = 10;
-    var zdelta = 0.01 * zoomchange;
+    var zdelta = 0.05 * zoomchange;
     var zoomRatio = zdelta / zoom;
     var xdelta = 10 * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1);
     var ydelta = 10 * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1);
-    console.log((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
     setPosition((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
 
 
