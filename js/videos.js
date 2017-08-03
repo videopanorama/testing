@@ -38,7 +38,7 @@ var players = CreateTileArray();
 //parameters
 
 var useBuffer = true;
-var useVideos = (urlParams.video == "true");
+var useVideos = (urlParams.video == "true");;
 //var useVideos = false;
 var useSync = !(urlParams.sync == "false");
 
@@ -346,8 +346,8 @@ function changePosition(xchange, ychange, zoomchange, zoomcenterX, zoomcenterY) 
     var posStep = 10;
     var zdelta = 0.05 * zoomchange;
     var zoomRatio = zdelta / zoom;
-    var xdelta = 10 * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1);
-    var ydelta = 10 * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1);
+    var xdelta = (10 * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1))*assumedTileSize/defaultTileSize;
+    var ydelta = 10 * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1)*assumedTileSize/defaultTileSize;
     setPosition((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
 
 
