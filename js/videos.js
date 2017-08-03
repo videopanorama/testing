@@ -38,8 +38,8 @@ var players = CreateTileArray();
 //parameters
 
 var useBuffer = true;
-//var useVideos = !(urlParams.video == "false");
-var useVideos = false;
+var useVideos = (urlParams.video == "true");
+//var useVideos = false;
 var useSync = !(urlParams.sync == "false");
 
 //time 
@@ -237,8 +237,8 @@ function setPosition(newxpos, newypos, newzoom) {
     var newzoomrounded = Math.pow(2, newzoomLevel);
 
 
-    var tileLength = (defaultTileSize / newzoomrounded);
-
+    var tileLength = (assumedTileSize / newzoomrounded); 
+    var scaleFactor = newzoom / newzoomrounded;
 
 
     var xposTile = newxpos / tileLength;
@@ -247,13 +247,14 @@ function setPosition(newxpos, newypos, newzoom) {
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
-    if (newxpos < 0 || newypos < 0 || newxpos + (defaultTileSize) * (xtilesWindow - 1) / newzoom > width * defaultTileSize / assumedTileSize || newypos + defaultTileSize * (ytilesWindow - 1) / newzoom > height * defaultTileSize / assumedTileSize || newzoomLevel >= levels || newzoomLevel < 2) {
+    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width || newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height || newzoomLevel >= levels || newzoomLevel < 1) {
         return false;
     }
 
     //zoom css 
 
-    tileSize = (defaultTileSize * newzoom) / newzoomrounded;
+
+    tileSize = defaultTileSize * scaleFactor;
     tileUpdate(function(xtile, ytile, id) {
         var video = videojs(id);
         video.dimensions(tileSize, tileSize);
