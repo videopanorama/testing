@@ -342,12 +342,12 @@ var loaded = function() {
 
 
 function changePosition(xchange, ychange, zoomchange, zoomcenterX, zoomcenterY) {
-    var zoomStep = 0.01;
+    var zoomStep = 0.05;
     var posStep = 10;
-    var zdelta = 0.05 * zoomchange;
+    var zdelta = zoomStep * zoomchange;
     var zoomRatio = zdelta / zoom;
-    var xdelta = (10 * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1))*assumedTileSize/defaultTileSize;
-    var ydelta = 10 * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1)*assumedTileSize/defaultTileSize;
+    var xdelta = posStep * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1)*assumedTileSize/defaultTileSize;
+    var ydelta = posStep * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1)*assumedTileSize/defaultTileSize;
     setPosition((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
 
 

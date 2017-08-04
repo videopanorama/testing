@@ -6,6 +6,13 @@
 
     $(document).on("controls", function() {
 
+        hammer = new Hammer(document.getElementById("videoContainer"));
+        hammer.get('pinch').set({enable:true});
+
+        hammer.on("pan", function(event) {changePosition(-event.deltaX/2000,-event.deltaY/2000, 0, 0, 0);});
+
+      //  hammer.on("pinch", function(event) {console.log(-event.deltaX/2000,-event.deltaY/2000, 0, 0, 0);});
+
         //buttons
 
         var holding;
@@ -25,8 +32,6 @@
             var xchange = 0;
             var zchange = 0;
 
-            var posStep = 10;
-            var zoomStep = 0.01;
 
             if (keys[40]) { //down function
                 ychange += 1;
