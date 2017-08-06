@@ -1,3 +1,5 @@
+var getMousePos;
+
 (function($) {
 
     // videoId2 = "example_video_2";
@@ -24,6 +26,10 @@
             mousePos.x = e.pageX;
             mousePos.y = e.pageY;
         });
+
+        getMousePos = function (pageX, pageY){
+            return xpos+pageX*assumedTileSize/tileSize;
+        };
 
         $(document).keydown(function(e) {
             keys[e.which] = true;
@@ -62,6 +68,7 @@
         $("#videoContainer").on("wheel", function(e) {
             e.preventDefault();
             zchange = -e.originalEvent.deltaY/100;
+              console.log(e.pageX,e.pageY);
             changePosition(0, 0, zchange, e.pageX, e.pageY);
         });
 
@@ -76,6 +83,8 @@
                 e.preventDefault();
             }
         }, false);
+
+
 
     });
 })(jQuery);

@@ -237,7 +237,7 @@ function setPosition(newxpos, newypos, newzoom) {
     var newzoomrounded = Math.pow(2, newzoomLevel);
 
 
-    var tileLength = (assumedTileSize / newzoomrounded); 
+    var tileLength = (assumedTileSize / newzoomrounded);
     var scaleFactor = newzoom / newzoomrounded;
 
 
@@ -247,9 +247,47 @@ function setPosition(newxpos, newypos, newzoom) {
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
-    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width || newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height || newzoomLevel >= levels || newzoomLevel < 1) {
+    if (newxpos < 0) {
+        newxpos = 0;
+    }
+
+    if (newypos < 0) {
+        newypos = 0;
+    }
+
+    if (newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width) {
+        newxpos = width - tileLength * (xtilesWindow - 1) / scaleFactor;
+    }
+
+    if (newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height) {
+        newypos = height - tileLength * (ytilesWindow - 1) / scaleFactor;
+    }
+
+    if (newzoom > Math.pow(2, levels)) {
+        newzoom = Math.pow(2, levels);
+    }
+
+    if (newzoom < 1) {
+        newzoom = 1;
+    }
+
+    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width || newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
         return false;
     }
+
+    newzoomLevel = Math.floor(Math.log2(newzoom));
+    newzoomrounded = Math.pow(2, newzoomLevel);
+
+
+    tileLength = (assumedTileSize / newzoomrounded);
+    scaleFactor = newzoom / newzoomrounded;
+
+
+    xposTile = newxpos / tileLength;
+    yposTile = newypos / tileLength;
+
+    newxTile = Math.floor(xposTile);
+    newyTile = Math.floor(yposTile);
 
     //zoom css 
 
@@ -296,6 +334,7 @@ function changeTilesSrc() {
 
 
     videos.css("display", "none");
+
     //   console.error("hiding videos");
 
     //console.error("updating posters");
@@ -346,11 +385,9 @@ function changePosition(xchange, ychange, zoomchange, zoomcenterX, zoomcenterY) 
     var posStep = 10;
     var zdelta = zoomStep * zoomchange;
     var zoomRatio = zdelta / zoom;
-    var xdelta = posStep * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1)*assumedTileSize/defaultTileSize;
-    var ydelta = posStep * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1)*assumedTileSize/defaultTileSize;
+    var xdelta = posStep * xchange + zoomcenterX * zoomRatio / (zoomRatio + 1) * assumedTileSize / defaultTileSize;
+    var ydelta = posStep * ychange + zoomcenterY * zoomRatio / (zoomRatio + 1) * assumedTileSize / defaultTileSize;
     setPosition((xpos || 0) + xdelta, (ypos || 0) + ydelta, (zoom || 5) * (1 + zdelta));
-
-
 }
 
 $(document).on("startMaster", function() {
@@ -358,5 +395,5 @@ $(document).on("startMaster", function() {
     videos = $(".video-js");
     setPosition(xpos, ypos, zoom);
     $(document).trigger("controls");
-    if (useSync) {   $(document).trigger("sync");}
+    if (useSync) { $(document).trigger("sync"); }
 });
