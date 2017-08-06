@@ -361,7 +361,7 @@ function changeTilesSrc(css) {
     cssDelay = 0;
     setTimeout(function() { tileUpdate(updatePoster); }, posterDelay);
 
-    console.log("updated posters");
+ //  console.log("updated posters");
     setTimeout(function() {
 
         if (useVideos) {
@@ -374,10 +374,10 @@ function changeTilesSrc(css) {
             bufferAllPosters();
         }
     }, videoDelay);
-    console.log("updated videos");
+   //console.log("updated videos");
     setTimeout(function() {
 
-console.log("updating css");
+//console.log("updating css");
         css();
     }, cssDelay);
 
