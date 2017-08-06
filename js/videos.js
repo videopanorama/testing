@@ -12,7 +12,7 @@ var ymaxLevels = [1, 2, 3, 5, 10, 20]; //maximum y of available tiles at each le
 
 var startx = 0;
 var starty = 0;
-var startzoom = 5;
+var startzoom = 4;
 
 //src variables
 
@@ -63,7 +63,7 @@ function initialize() {
     video.height(tileSize);
     //video.poster("seafront/green.jpg");
     if (useVideos) {
-        video.on("loadeddata", loaded);
+        video.on("playing", loaded);
     }
 
 }
@@ -256,10 +256,12 @@ function setPosition(newxpos, newypos, newzoom) {
     }
 
     if (newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width) {
+        console.log("Tes");
         newxpos = width - tileLength * (xtilesWindow - 1) / scaleFactor;
     }
 
     if (newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height) {
+        console.log("Adjuisted");
         newypos = height - tileLength * (ytilesWindow - 1) / scaleFactor;
     }
 
@@ -271,9 +273,6 @@ function setPosition(newxpos, newypos, newzoom) {
         newzoom = 1;
     }
 
-    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width || newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
-        return false;
-    }
 
     newzoomLevel = Math.floor(Math.log2(newzoom));
     newzoomrounded = Math.pow(2, newzoomLevel);
@@ -289,45 +288,63 @@ function setPosition(newxpos, newypos, newzoom) {
     newxTile = Math.floor(xposTile);
     newyTile = Math.floor(yposTile);
 
-    //zoom css 
-
-
-    tileSize = defaultTileSize * scaleFactor;
-    tileUpdate(function(xtile, ytile, id) {
-        var video = videojs(id);
-        video.dimensions(tileSize, tileSize);
-
-    });
-    $("#videos td").css("width", tileSize).css("height", tileSize);
-
-    // position css
-
-
-    var right = xposTile - newxTile;
-    $("#videos").css("right", right * tileSize);
-
-    var bottom = yposTile - newyTile;
-    $("#videos").css("bottom", bottom * tileSize);
-
-    //setting new variables
-
-    xpos = newxpos;
-    ypos = newypos;
-    zoom = newzoom;
+    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width || newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
+        console.log("false");
+        return false;
+    }
 
     //updates src if necessary
+
+
+
+
+    //zoom css 
+
+    css = function() {
+
+        console.log("css updating");
+
+
+        tileSize = defaultTileSize * scaleFactor;
+        tileUpdate(function(xtile, ytile, id) {
+            var video = videojs(id);
+            video.dimensions(tileSize, tileSize);
+
+        });
+        $("#videos td").css("width", tileSize).css("height", tileSize);
+
+        // position css
+
+
+        var right = xposTile - newxTile;
+        $("#videos").css("right", right * tileSize);
+
+        var bottom = yposTile - newyTile;
+        $("#videos").css("bottom", bottom * tileSize);
+
+        //setting new variables
+
+        xpos = newxpos;
+        ypos = newypos;
+        zoom = newzoom;
+    };
 
     if (newxTile != xTile || newyTile != yTile || newzoomLevel != zoomLevel) {
         xTile = newxTile;
         yTile = newyTile;
         zoomLevel = newzoomLevel;
-        changeTilesSrc();
+        console.log('changing srcs');
+        changeTilesSrc(css);
+    } else {
+        css();
     }
+
+
 }
 
 //runs update for every tile
 
-function changeTilesSrc() {
+function changeTilesSrc(css) {
     timeBefore = videojs("0_0").currentTime();
 
     nearestSecond = (Math.round(timeBefore) % 8) || 0;
@@ -338,19 +355,31 @@ function changeTilesSrc() {
     //   console.error("hiding videos");
 
     //console.error("updating posters");
-    tileUpdate(updatePoster);
 
+    var posterDelay = 0,
+    videoDelay = 0,
+    cssDelay = 0;
+    setTimeout(function() { tileUpdate(updatePoster); }, posterDelay);
 
+    console.log("updated posters");
+    setTimeout(function() {
 
-    if (useVideos) {
-        //   console.error("updating videos");
-        players = CreateTileArray();
-        tileUpdate(updateVideo);
-    }
+        if (useVideos) {
+            //   console.error("updating videos");
+            players = CreateTileArray();
+            tileUpdate(updateVideo);
+        }
 
-    if (useBuffer) {
-        bufferAllPosters();
-    }
+        if (useBuffer) {
+            bufferAllPosters();
+        }
+    }, videoDelay);
+    console.log("updated videos");
+    setTimeout(function() {
+
+console.log("updating css");
+        css();
+    }, cssDelay);
 
 }
 
