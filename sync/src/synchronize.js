@@ -28,7 +28,7 @@
     // prevent that a slave video lags before even starting to synchronize
     var synchGap = 0; // s
     // maximum gap that is accepted before seeking (higher playback rate to fill the gap)
-    var maxGap = 4; // s
+    var maxGap = 0.5; // s
     var playbackrateIncrease = 0.5;
     var playbackrateDecrease = -0.5;
     var seekAhead = 0.25; // s

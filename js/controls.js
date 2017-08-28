@@ -1,4 +1,5 @@
-var getMousePos;
+
+        var mousePos = { "x": 0, "y": 0 };
 
 (function($) {
 
@@ -20,7 +21,7 @@ var getMousePos;
         var holding;
         //keys
         var keys = {};
-        var mousePos = { "x": 0, "y": 0 };
+
 
         $("body").mousemove(function(e) {
             mousePos.x = e.pageX;
@@ -56,9 +57,10 @@ var getMousePos;
 
             }
 
-
+            if (xchange !== 0 || ychange !== 0 || zchange !== 0) {
 
             changePosition(xchange, ychange, zchange, mousePos.x, mousePos.y);
+        }
         });
 
         $("#videoContainer").on("wheel", function(e) {

@@ -2,7 +2,7 @@
 
 
 
-var xtilesWindow = parseInt(urlParams.xtiles || 5);
+var xtilesWindow = parseInt(urlParams.xtiles || 4);
 var ytilesWindow = parseInt(urlParams.ytiles || 3);
 
 var tileSize;
@@ -15,7 +15,8 @@ var videos;
 
 
 $(document).ready(function() {
-    defaultTileSize = Math.round($(window).width() / (xtilesWindow-1));
+ defaultTileSize = Math.round($(window).width() / (xtilesWindow-1));
+   // defaultTileSize = 600;
     tileSize = defaultTileSize;
     tiles();
     $("#videoContainer").css("height", tileSize * (ytilesWindow - 1)).css("width", tileSize * (xtilesWindow - 1));

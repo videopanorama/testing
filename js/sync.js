@@ -1,5 +1,5 @@
-  
-  var loggingEnabled = false;
+var loggingEnabled = false;
+
   (function($) {
 
    $(document).on("sync", function() {
