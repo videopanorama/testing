@@ -39,7 +39,7 @@ var players = CreateTileArray();
 //parameters
 
 var useBuffer = true;
-var useVideos = (urlParams.video == "true");;
+var useVideos = !(urlParams.video == "false");
 //var useVideos = false;
 var useSync = !(urlParams.sync == "false");
 
@@ -305,7 +305,7 @@ function setPosition(newxpos, newypos, newzoom) {
         xTile = newxTile;
         yTile = newyTile;
         zoomLevel = newzoomLevel;
-                css();
+        css();
         changeTilesSrc(css);
 
     } else {
@@ -364,7 +364,7 @@ function changePosition(xchange, ychange, zoomchange, mouseX, mouseY) {
     var xdelta = (mouseX / tileSize * tileLength) * zdelta * (1) / (1 + zdelta);
     var ydelta = (mouseY / tileSize * tileLength) * zdelta * (1) / (1 + zdelta);
 
-    setPosition(xpos + xchange * posStep / zoom + xdelta , ypos + ydelta + ychange * posStep / zoom, zoom * (1 + zdelta));
+    setPosition(xpos + xchange * posStep / zoom + xdelta, ypos + ydelta + ychange * posStep / zoom, zoom * (1 + zdelta));
 }
 
 $(document).on("startMaster", function() {
