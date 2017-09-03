@@ -29,12 +29,15 @@ var zoom = startzoom; //zoom level of current set of tiles, [1, 2^levels)
 
 //buffer status
 
-var bufferedPosters = CreatePosArray();
-var bufferedVideos = CreatePosArray();
+var bufferedPostersLoading = [];
+var bufferedPostersLoaded = [];
+
+var bufferedVideos = CreatePosArray(); //change to format of posters
 
 //players status, e.g. loaded, showing
 
-var players = CreateTileArray();
+var players;
+var playersShowing;
 
 //parameters
 
@@ -59,6 +62,8 @@ var videos;
 function getId(x, y) {
     return y + "_" + x;
 }
+
+
 
 function getPos(id) {
     z = id.split("_");
@@ -94,21 +99,49 @@ function bufferPoster(x, y, level) {
         return false;
     }
 
-    bufferStatus = bufferedPosters[level][x][y];
+    var file = getImageFile(x, y, level);
 
-    if (bufferStatus.started) {
+    loading = bufferedPostersLoading.indexOf(file) > -1;
+    loaded = bufferedPostersLoaded.indexOf(file) > -1;
+
+    if (loading || loaded) {
+        return false;
+    }
+    bufferedPostersLoading.push(file);
+
+    var img = $('<img>');
+    img.attr('id', file);
+    img.attr('src', imageSrc(x, y, level));
+    img.on('load', function() {
+        bufferedPostersLoaded.push(this.id);
+        bufferedPostersLoading.splice(bufferedPostersLoading.indexOf(file), 1);
+    });
+    $("#buffering").append(img);
+}
+
+function stopBufferingPoster(x, y, level) {
+    if (!validTile(x, y, level)) {
         return false;
     }
 
-    bufferStatus.started = true;
-    var img = $('<img>');
-    img.attr('src', imageSrc(x, y, level));
-    img.on('load', function() { bufferStatus.loaded = true; });
-    $("#buffering").append(img);
+    file = getImageFile(x, y, level);
+
+    if (!(file in bufferedPostersLoading) || file in bufferedPostersLoaded) {
+        return false;
+    }
+
+    var img = $('#' + file);
+    img.remove();
+
 
 }
 
-//loads video into memory 
+function stopAllBufferingPoster() {
+    window.stop();
+    bufferedPostersLoading = [];
+}
+
+//loads video into memory, incomplete, needs change to poster format
 
 function bufferVideo(x, y, level) {
 
@@ -189,8 +222,10 @@ function initialize() {
     var video = videojs(id, { loop: true, loadingSpinner: false });
     video.width(tileSize);
     video.height(tileSize);
+
+    //$("#" + id).parent().on('load', loadedImage);
     if (useVideos) {
-        video.on("playing", loaded);
+        video.on("playing", loadedVideo);
     }
 
 }
@@ -318,6 +353,7 @@ function setPosition(newxpos, newypos, newzoom) {
 //runs update for every tile
 
 function changeTilesSrc(css) {
+
     timeBefore = videojs("0_0").currentTime();
 
     nearestSecond = (Math.round(timeBefore) % 8) || 0;
@@ -325,33 +361,52 @@ function changeTilesSrc(css) {
 
     videos.css("display", "none");
 
+    stopAllBufferingPoster();
+
 
     tileUpdate(updatePoster);
 
 
     if (useVideos) {
+        videosShowing = 0;
         players = CreateTileArray();
+
         tileUpdate(updateVideo);
     }
 
-    if (useBuffer) {
-        bufferAllPosters();
+    else {
+        buffer();
     }
+
+
+
+
 
 
 
 }
 
-var loaded = function() {
+var loadedVideo = function() {
     var id = this.id();
     var xtile = getPos(id)["x"];
     var ytile = getPos(id)["y"];
     if (players[xtile][ytile].showing) {
         return;
     }
+
     players[xtile][ytile].showing = true;
+    videosShowing += 1;
+    if (videosShowing == xtilesWindow * ytilesWindow) {
+        //buffer();
+    }
+
 
     $("#" + id).css("display", "block");
+};
+
+
+var buffer = function() {
+    bufferAllPosters();
 };
 
 ////////////////////
