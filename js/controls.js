@@ -1,5 +1,4 @@
-
-        var mousePos = { "x": 0, "y": 0 };
+var mousePos = { "x": 0, "y": 0 };
 
 (function($) {
 
@@ -9,70 +8,20 @@
 
     $(document).on("controls", function() {
 
-        hammer = new Hammer(document.getElementById("videoContainer"));
-        hammer.get('pinch').set({enable:true});
+        var el = document.getElementById("videoContainer");
 
-        hammer.on("pan", function(event) {changePosition(-event.deltaX/2000,-event.deltaY/2000, 0, 0, 0);});
+        var mc = new Hammer.Manager(el);
 
-      //  hammer.on("pinch", function(event) {console.log(-event.deltaX/2000,-event.deltaY/2000, 0, 0, 0);});
+        mc.add(new Hammer.Pan({ threshold: 0, pointers: 0 }));
 
-        //buttons
+        mc.add(new Hammer.Pinch({ threshold: 0 })).recognizeWith(mc.get('pan'));
+
+        mc.on("panstart panmove", 
+            function(e) { changePosition(-e.deltaX / 200, -e.deltaY / 200, 0, 0, 0); });
 
         var holding;
-        //keys
-        var keys = {};
 
-
-        $("body").mousemove(function(e) {
-            mousePos.x = e.pageX;
-            mousePos.y = e.pageY;
-        });
-
-        $(document).keydown(function(e) {
-            keys[e.which] = true;
-
-            var ychange = 0;
-            var xchange = 0;
-            var zchange = 0;
-
-
-            if (keys[40]) { //down function
-                ychange += 1;
-            }
-            if (keys[37]) { //left function
-                xchange -= 1;
-            }
-            if (keys[39]) { //right function
-                xchange += 1;
-            }
-            if (keys[38]) { //up function
-                ychange -= 1;
-            }
-
-            if (keys[81]) { //q function
-                zchange += 1;
-            }
-            if (keys[87]) { //w function
-                zchange -= 1;
-
-            }
-
-            if (xchange !== 0 || ychange !== 0 || zchange !== 0) {
-
-            changePosition(xchange, ychange, zchange, mousePos.x, mousePos.y);
-        }
-        });
-
-        $("#videoContainer").on("wheel", function(e) {
-            e.preventDefault();
-            zchange = -e.originalEvent.deltaY/100;
-            changePosition(0, 0, zchange, e.pageX, e.pageY);
-        });
-
-        $(document).keyup(function(e) {
-            delete keys[e.which];
-        });
-
+        var keysPressed = {};
 
         window.addEventListener("keydown", function(e) {
             // space and arrow keys
@@ -80,6 +29,87 @@
                 e.preventDefault();
             }
         }, false);
+
+        $(document).keydown(function(e) {
+            keysPressed[e.which] = true;
+
+            var ychange = 0;
+            var xchange = 0;
+            var zchange = 0;
+
+
+            if (keysPressed[40]) { //down function
+                ychange += 1;
+            }
+            if (keysPressed[37]) { //left function
+                xchange -= 1;
+            }
+            if (keysPressed[39]) { //right function
+                xchange += 1;
+            }
+            if (keysPressed[38]) { //up function
+                ychange -= 1;
+            }
+
+            if (keysPressed[81]) { //q function
+                zchange += 1;
+            }
+            if (keysPressed[87]) { //w function
+                zchange -= 1;
+            }
+
+            if (xchange !== 0 || ychange !== 0 || zchange !== 0) {
+
+                changePosition(xchange, ychange, zchange, mousePos.x, mousePos.y);
+            }
+        });
+
+        $(document).keyup(function(e) {
+            delete keysPressed[e.which];
+        });
+
+        $("body").mousemove(function(e) {
+            mousePos.x = e.pageX;
+            mousePos.y = e.pageY;
+        });
+
+        var zoom;
+
+
+
+        $("#videoContainer").on("mousedown", function(e) {
+
+            if (e.which !=1) {return false;}
+
+            holding = true;
+
+            
+            zoom = setInterval(function(){
+
+                var zchange = 1;
+
+            if (keysPressed[16]) {
+                zchange = -1;
+            }
+                changePosition(0,0,zchange,e.pageX,e.pageY);
+            },100);
+        });
+
+        $("#videoContainer").on("mouseup", function(e) {
+            //if (e.which !=1) {return false;}
+            holding = false;
+            clearInterval(zoom);
+        });
+
+
+
+        $("#videoContainer").on("wheel", function(e) {
+            e.preventDefault();
+            zchange = -e.originalEvent.deltaY / 100;
+            changePosition(0, 0, zchange, e.pageX, e.pageY);
+        });
+
+
 
 
 
