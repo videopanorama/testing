@@ -397,7 +397,7 @@ var loadedVideo = function() {
     players[xtile][ytile].showing = true;
     videosShowing += 1;
     if (videosShowing == xtilesWindow * ytilesWindow) {
-        //buffer();
+        buffer();
     }
 
 

@@ -77,29 +77,29 @@ var mousePos = { "x": 0, "y": 0 };
 
 
 
-        $("#videoContainer").on("mousedown", function(e) {
+        // $("#videoContainer").on("mousedown", function(e) {
 
-            if (e.which !=1) {return false;}
+        //     if (e.which !=1) {return false;}
 
-            holding = true;
+        //     holding = true;
 
             
-            zoom = setInterval(function(){
+        //     zoom = setInterval(function(){
 
-                var zchange = 1;
+        //         var zchange = 1;
 
-            if (keysPressed[16]) {
-                zchange = -1;
-            }
-                changePosition(0,0,zchange,e.pageX,e.pageY);
-            },100);
-        });
+        //     if (keysPressed[16]) {
+        //         zchange = -1;
+        //     }
+        //         changePosition(0,0,zchange,e.pageX,e.pageY);
+        //     },100);
+        // });
 
-        $("#videoContainer").on("mouseup", function(e) {
-            //if (e.which !=1) {return false;}
-            holding = false;
-            clearInterval(zoom);
-        });
+        // $("#videoContainer").on("mouseup", function(e) {
+        //     //if (e.which !=1) {return false;}
+        //     holding = false;
+        //     clearInterval(zoom);
+        // });
 
 
 
