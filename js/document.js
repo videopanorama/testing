@@ -5,6 +5,9 @@
 var xtilesWindow = parseInt(urlParams.xtiles || 4);
 var ytilesWindow = parseInt(urlParams.ytiles || 3);
 
+var xtilesView;
+var ytilesView;
+
 var tileSize;
 
 var defaultTileSize;
@@ -15,11 +18,13 @@ var videos;
 
 
 $(document).ready(function() {
- defaultTileSize = Math.round($(window).width() / (xtilesWindow-1));
+    defaultTileSize = Math.round($(window).width() / (xtilesWindow-1));
    // defaultTileSize = 600;
     tileSize = defaultTileSize;
+    xtilesView = $(window).width()/tileSize;
+    ytilesView = $(window).height()/tileSize;
     tiles();
-    $("#videoContainer").css("height", tileSize * (ytilesWindow - 1)).css("width", tileSize * (xtilesWindow - 1));
+    $("#videoContainer").css("height", tileSize * ytilesView).css("width", tileSize * xtilesView);
     $("#videos td").css("width", tileSize).css("height", tileSize);
     $(".video-js").on('contextmenu', function(e) {
     e.preventDefault();

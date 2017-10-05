@@ -19,6 +19,8 @@ var mousePos = { "x": 0, "y": 0 };
         mc.on("panstart panmove", 
             function(e) { changePosition(-e.deltaX / 200, -e.deltaY / 200, 0, 0, 0); });
 
+        mc.on("pinch", function(e) {console.log(e);});
+
         var holding;
 
         var keysPressed = {};

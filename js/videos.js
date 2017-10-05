@@ -284,12 +284,12 @@ function setPosition(newxpos, newypos, newzoom) {
         newypos = 0;
     }
 
-    if (newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width) {
-        newxpos = width - tileLength * (xtilesWindow - 1) / scaleFactor;
+    if (newxpos + tileLength * xtilesView / scaleFactor > width) {
+        newxpos = width - tileLength * xtilesView / scaleFactor;
     }
 
-    if (newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height) {
-        newypos = height - tileLength * (ytilesWindow - 1) / scaleFactor;
+    if (newypos + tileLength * ytilesView / scaleFactor > height) {
+        newypos = height - tileLength * ytilesView / scaleFactor;
     }
 
     var xposTile = newxpos / tileLength;
@@ -298,7 +298,7 @@ function setPosition(newxpos, newypos, newzoom) {
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
-    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * (xtilesWindow - 1) / scaleFactor > width || newypos + tileLength * (ytilesWindow - 1) / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
+    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * xtilesView / scaleFactor > width || newypos + tileLength * ytilesView / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
         return false;
     }
 
