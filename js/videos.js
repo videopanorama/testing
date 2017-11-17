@@ -29,18 +29,21 @@ var zoom = startzoom; //zoom level of current set of tiles, [1, 2^levels)
 
 //buffer status
 
-var bufferedPostersLoading = [];
-var bufferedPostersLoaded = [];
 
-var bufferedVideos = CreatePosArray(); //change to format of posters
 
 //players status, e.g. loaded, showing
 
 var players;
-var playersShowing;
+
+var imagesReady;
+var videosReady;
+
+var allImagesReady;
+var allVideosReady;
 
 //parameters
 
+var useOffline = urlParams.offline == "true";
 var useBuffer = true;
 var useVideos = !(urlParams.video == "false");
 //var useVideos = false;
@@ -89,118 +92,7 @@ function validTile(x, y, level) {
 }
 
 
-////////////////////////// buffering
 
-//loads poster into memory
-
-function bufferPoster(x, y, level) {
-
-    if (!validTile(x, y, level)) {
-        return false;
-    }
-
-    var file = getImageFile(x, y, level);
-
-    loading = bufferedPostersLoading.indexOf(file) > -1;
-    loaded = bufferedPostersLoaded.indexOf(file) > -1;
-
-    if (loading || loaded) {
-        return false;
-    }
-    bufferedPostersLoading.push(file);
-
-    var img = $('<img>');
-    img.attr('id', file);
-    img.attr('src', imageSrc(x, y, level));
-    img.on('load', function() {
-        bufferedPostersLoaded.push(this.id);
-        bufferedPostersLoading.splice(bufferedPostersLoading.indexOf(file), 1);
-    });
-    $("#buffering").append(img);
-}
-
-function stopBufferingPoster(x, y, level) {
-    if (!validTile(x, y, level)) {
-        return false;
-    }
-
-    file = getImageFile(x, y, level);
-
-    if (!(file in bufferedPostersLoading) || file in bufferedPostersLoaded) {
-        return false;
-    }
-
-    var img = $('#' + file);
-    img.remove();
-
-
-}
-
-function stopAllBufferingPoster() {
-    window.stop();
-    bufferedPostersLoading = [];
-}
-
-//loads video into memory, incomplete, needs change to poster format
-
-function bufferVideo(x, y, level) {
-
-    if (!validTile(x, y, level)) {
-        return false;
-    }
-
-    bufferStatus = bufferedVideos[level][x][y];
-
-    if (bufferStatus.started) {
-        return false;
-    }
-
-    bufferStatus.started = true;
-
-    var element = $('<video/>');
-    element.attr('id', x + '/' + y);
-    $("#buffering").append(element);
-    video = videojs(x + '/' + y);
-    video.src(videoSrc(x, y));
-    video.play();
-
-    // Pause immediately after it starts playing.
-    video.on("timeupdate", function() {
-        if (this.currentTime > 0) {
-
-            this.pause();
-
-        }
-    }, false);
-}
-
-
-
-//loads all images directly around current view
-
-function bufferAllPosters() {
-    for (var level = -1; level <= 1; level++)
-        for (var ytile = -1; ytile <= ytilesWindow; ytile++) {
-            for (var xtile = -1; xtile <= xtilesWindow; xtile++) {
-                bufferPoster(xtile + xTile, ytile + yTile, zoomLevel + level);
-
-            }
-        }
-
-}
-
-//loads all videos directly around current view
-
-function bufferAllVideos() {
-
-    for (var ytile = -1; ytile < ytilesWindow + 1; ytile++) {
-        for (var xtile = -1; xtile < xtilesWindow + 1; xtile++) {
-            bufferVideo(xtile + xTile, ytile + yTile);
-
-        }
-    }
-
-}
 
 /////////////////////
 
@@ -235,20 +127,38 @@ function initialize() {
 //changes video and poster src depending on xTile and yTile, for tileUpdate
 
 function updatePoster(xtile, ytile, id) {
-    var video = videojs(id);
+    var setBackgroundImage = function(src) { $("#" + id).parent().css("background-image", src); };
 
-    var src = imageSrc(xtile + xTile, ytile + yTile, zoomLevel);
+    setBackgroundImage("");
 
-    $("#" + id).parent().css("background-image", 'url("' + src + '")');
+    var promise = function(src) { setBackgroundImage('url("' + src + '")'); };
+
+    retrievePoster(xtile + xTile, ytile + yTile, zoomLevel, promise);
+
+
 }
 
 
 function updateVideo(xtile, ytile, id) {
     var video = videojs(id);
-    var src = videoSrc(xtile + xTile, ytile + yTile, zoomLevel);
-    video.src(src);
-    video.currentTime(nearestSecond);
-    video.play();
+  //  var src = videoSrc(xtile + xTile, ytile + yTile, zoomLevel);
+    // video.src(src);
+    // video.currentTime(nearestSecond);
+    // video.play();
+
+    var setVideoSrc = function(src) {
+        players[xtile][ytile].updated = true;
+        video.src(src);
+        video.currentTime(nearestSecond);
+        video.play();
+    };
+
+
+    var promise = function(src) { setVideoSrc(src);
+     //   $("#" + id).css("display", "block");
+   };
+
+    retrieveVideo(xtile + xTile, ytile + yTile, zoomLevel, promise);
 }
 
 //changes xpos and ypos and zoom via css, if video srcs needs to be changed then changeTilesSrc is runn
@@ -257,10 +167,6 @@ function setPosition(newxpos, newypos, newzoom) {
 
     var newzoomLevel = Math.floor(Math.log2(newzoom));
     var newzoomrounded = Math.pow(2, newzoomLevel);
-
-
-
-
 
     if (newzoom >= Math.pow(2, levels)) {
         newzoom = Math.pow(2, levels) - 0.1;
@@ -292,67 +198,67 @@ function setPosition(newxpos, newypos, newzoom) {
         newypos = height - tileLength * ytilesView / scaleFactor;
     }
 
+
+    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * xtilesView / scaleFactor > width || newypos + tileLength * ytilesView / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
+        return false;
+    }
+    xpos = newxpos;
+    ypos = newypos;
+    zoom = newzoom;
+
     var xposTile = newxpos / tileLength;
     var yposTile = newypos / tileLength;
 
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
-    if (newxpos < 0 || newypos < 0 || newxpos + tileLength * xtilesView / scaleFactor > width || newypos + tileLength * ytilesView / scaleFactor > height || newzoom >= Math.pow(2, levels) || newzoomLevel < 1) {
-        return false;
-    }
-
-    //updates src if necessary
-
-
-
-
-    //zoom css 
-
-    css = function() {
-
-
-        tileSize = defaultTileSize * scaleFactor;
-        tileUpdate(function(xtile, ytile, id) {
-            var video = videojs(id);
-            video.dimensions(tileSize, tileSize);
-
-        });
-        $("#videos td").css("width", tileSize).css("height", tileSize);
-
-        // position css
-
-
-        var right = xposTile - newxTile;
-        $("#videos").css("right", right * tileSize);
-
-        var bottom = yposTile - newyTile;
-        $("#videos").css("bottom", bottom * tileSize);
-
-        //setting new variables
-
-        xpos = newxpos;
-        ypos = newypos;
-        zoom = newzoom;
-    };
-
     if (newxTile != xTile || newyTile != yTile || newzoomLevel != zoomLevel) {
         xTile = newxTile;
         yTile = newyTile;
         zoomLevel = newzoomLevel;
-        css();
-        changeTilesSrc(css);
-
+        
+        changeTilesSrc();
+       // css();
     } else {
         css();
     }
+}
+
+function css() {
+
+    var zoomrounded = Math.pow(2, zoomLevel);
+
+    var scaleFactor = zoom / zoomrounded;
+
+    var tileLength = assumedTileSize / zoomrounded;
+
+    var xposTile = xpos / tileLength;
+    var yposTile = ypos / tileLength;
+
+
+    tileSize = defaultTileSize * scaleFactor;
+    tileUpdate(function(xtile, ytile, id) {
+        var video = videojs(id);
+        video.dimensions(tileSize, tileSize);
+
+    });
+    $("#videos td").css("width", tileSize).css("height", tileSize);
+
+    // position css
+
+
+    var right = xposTile - xTile;
+    $("#videos").css("right", right * tileSize);
+
+    var bottom = yposTile - yTile;
+    $("#videos").css("bottom", bottom * tileSize);
+
+    //setting new variables
 
 
 }
 
-//runs update for every tile
-
-function changeTilesSrc(css) {
+function changeTilesSrc() {
 
     timeBefore = videojs("0_0").currentTime();
 
@@ -361,25 +267,27 @@ function changeTilesSrc(css) {
 
     videos.css("display", "none");
 
+    setTimeout(function(){
+
     stopAllBufferingPoster();
 
+    imagesReady = 0;
 
     tileUpdate(updatePoster);
 
+    //$("#videoContainer").waitForImages(function() { console.log("asd", imagesReady, allImagesReady);  });
+
 
     if (useVideos) {
-        videosShowing = 0;
+        videosReady = 0;
         players = CreateTileArray();
-
         tileUpdate(updateVideo);
-    }
-
-    else {
+    } else {
         buffer();
     }
 
-
-
+    css();
+},1);
 
 
 
@@ -390,23 +298,28 @@ var loadedVideo = function() {
     var id = this.id();
     var xtile = getPos(id)["x"];
     var ytile = getPos(id)["y"];
-    if (players[xtile][ytile].showing) {
+
+    if (players[xtile][ytile].showing || !(players[xtile][ytile].updated)) {
         return;
     }
 
-    players[xtile][ytile].showing = true;
-    videosShowing += 1;
-    if (videosShowing == xtilesWindow * ytilesWindow) {
-        buffer();
-    }
 
+    players[xtile][ytile].showing = true;
+    videosReady += 1;
 
     $("#" + id).css("display", "block");
+
+    if (videosReady == xtilesWindow * ytilesWindow) {
+        buffer();
+        console.log("all videos loaded, buffering posters...");
+    }
 };
 
 
+
+
 var buffer = function() {
-    bufferAllPosters();
+    if (useBuffer) bufferAllPosters();
 };
 
 ////////////////////
