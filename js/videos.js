@@ -212,6 +212,8 @@ function setPosition(newxpos, newypos, newzoom) {
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
+    css();
+
     if (newxTile != xTile || newyTile != yTile || newzoomLevel != zoomLevel) {
         xTile = newxTile;
         yTile = newyTile;
@@ -220,7 +222,7 @@ function setPosition(newxpos, newypos, newzoom) {
         changeTilesSrc();
        // css();
     } else {
-        css();
+        
     }
 }
 
@@ -258,6 +260,8 @@ function css() {
 
 }
 
+var timeout = 10;
+
 function changeTilesSrc() {
 
     timeBefore = videojs("0_0").currentTime();
@@ -267,7 +271,7 @@ function changeTilesSrc() {
 
     videos.css("display", "none");
 
- 
+setTimeout(function(){ 
 
     stopAllBufferingPoster();
 
@@ -287,7 +291,7 @@ function changeTilesSrc() {
     }
 
     css();
-
+},timeout);
 
 
 
