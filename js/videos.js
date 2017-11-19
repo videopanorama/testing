@@ -271,7 +271,7 @@ function changeTilesSrc() {
 
     videos.css("display", "none");
 
-setTimeout(function(){ 
+{
 
     stopAllBufferingPoster();
 
@@ -291,7 +291,7 @@ setTimeout(function(){
     }
 
     css();
-},timeout);
+
 
 
 

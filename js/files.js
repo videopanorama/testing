@@ -65,7 +65,7 @@ function ajaxRequest(file, promise) {
 
         }
         else{
-        	 console.error(file + "failed");
+        	 console.error(file + " failed");
         }
     };
     req.onerror = function() {
