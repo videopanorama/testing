@@ -64,10 +64,12 @@ function ajaxRequest(file, promise) {
             promise(url);
 
         }
+        else{
+        	 console.error(file + "failed");
+        }
     };
     req.onerror = function() {
-        return false;
-    };
+        console.error(file + "failed");    };
 
     req.send();
 }
