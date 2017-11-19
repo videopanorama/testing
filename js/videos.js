@@ -112,8 +112,8 @@ function tileUpdate(operation) {
 function initialize() {
     $("#" + id).attr("mediagroup", "main");
     var video = videojs(id, { loop: true, loadingSpinner: false });
-    video.width(tileSize);
-    video.height(tileSize);
+    //video.width(tileSize);
+  //  video.height(tileSize);
 
     //$("#" + id).parent().on('load', loadedImage);
     if (useVideos) {
@@ -212,7 +212,7 @@ function setPosition(newxpos, newypos, newzoom) {
     var newxTile = Math.floor(xposTile);
     var newyTile = Math.floor(yposTile);
 
-    css();
+   //css();
 
     if (newxTile != xTile || newyTile != yTile || newzoomLevel != zoomLevel) {
         xTile = newxTile;
@@ -222,7 +222,7 @@ function setPosition(newxpos, newypos, newzoom) {
         changeTilesSrc();
        // css();
     } else {
-        
+        css();
     }
 }
 
