@@ -134,9 +134,10 @@ function stopBufferingPoster(x, y, level) {
 
 }
 
-function stopAllBufferingPoster() {
+function stopAllBuffering() {
     window.stop();
     bufferedPostersLoading = [];
+    bufferedVideosLoading = [];
 }
 
 var bufferedVideosLoading = [];

@@ -158,7 +158,10 @@ function updateVideo(xtile, ytile, id) {
      //   $("#" + id).css("display", "block");
    };
 
-    retrieveVideo(xtile + xTile, ytile + yTile, zoomLevel, promise);
+    if (retrieveVideo(xtile + xTile, ytile + yTile, zoomLevel, promise) === false) {
+    console.error(xtile,ytile);
+}
+
 }
 
 //changes xpos and ypos and zoom via css, if video srcs needs to be changed then changeTilesSrc is runn
@@ -273,7 +276,7 @@ function changeTilesSrc() {
 
 
 
-    stopAllBufferingPoster();
+    stopAllBuffering();
 
     imagesReady = 0;
 
